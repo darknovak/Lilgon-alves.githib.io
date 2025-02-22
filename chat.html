@@ -187,6 +187,70 @@ a:hover {
 </section>
 
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Abrir ou criar um banco de dados chamado "MeuSiteDB"
+    let db;
+    let request = indexedDB.open("MeuSiteDB", 1);
+
+    request.onupgradeneeded = function (event) {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains("usuarios")) {
+            db.createObjectStore("usuarios", { keyPath: "id", autoIncrement: true });
+        }
+    };
+
+    request.onsuccess = function (event) {
+        db = event.target.result;
+        console.log("Banco de dados carregado com sucesso!");
+        carregarUsuarios();
+    };
+
+    request.onerror = function () {
+        console.log("Erro ao abrir o banco de dados.");
+    };
+
+    function salvarUsuario(nome, email) {
+        let transaction = db.transaction(["usuarios"], "readwrite");
+        let store = transaction.objectStore("usuarios");
+
+        let usuario = { nome: nome, email: email };
+        let addRequest = store.add(usuario);
+
+        addRequest.onsuccess = function () {
+            console.log("Usuário salvo!");
+            carregarUsuarios();
+        };
+
+        addRequest.onerror = function () {
+            console.log("Erro ao salvar usuário.");
+        };
+    }
+
+    function carregarUsuarios() {
+        let transaction = db.transaction(["usuarios"], "readonly");
+        let store = transaction.objectStore("usuarios");
+        let request = store.getAll();
+
+        request.onsuccess = function () {
+            let usuarios = request.result;
+            let lista = document.getElementById("lista-usuarios");
+            lista.innerHTML = "";
+            usuarios.forEach((user) => {
+                let li = document.createElement("li");
+                li.textContent = `${user.nome} - ${user.email}`;
+                lista.appendChild(li);
+            });
+        };
+    }
+
+    document.getElementById("salvar").addEventListener("click", function () {
+        let nome = document.getElementById("nome").value;
+        let email = document.getElementById("email").value;
+        if (nome && email) {
+            salvarUsuario(nome, email);
+        }
+    });
+});
 document.addEventListener("DOMContentLoaded", function() {
     function atualizarStatus() {
         const statusElement = document.getElementById("user-status");
