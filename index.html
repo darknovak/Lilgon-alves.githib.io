@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="styles/style.css"/>
+  <title>Hello, World!</title>
+</head>
+<body>
+  <h1>
+    
+  </h1>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lil Gonçalves - Site Oficial</title>
+  <!-- Favicon: ícone do site de música -->
+  <link rel="icon" href="https://via.placeholder.com/32x32.png?text=♪" type="image/png">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script>
+  // Funções genéricas de persistência usando localStorage
+
+/**
+ * Salva um objeto ou array no localStorage usando a chave especificada.
+ * @param {string} key - Chave para armazenar os dados.
+ * @param {any} data - Dados que serão salvos.
+ */
+function saveData(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+/**
+ * Carrega os dados do localStorage a partir da chave especificada.
+ * @param {string} key - Chave dos dados.
+ * @returns {any} - Dados carregados ou null se não existirem.
+ */
+function loadData(key) {
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : null;
+}
+
+/* ===== Funções Específicas para cada "tabela" ===== */
+
+// Usuários
+function saveUsers(users) {
+  saveData('users', users);
+}
+function loadUsers() {
+  return loadData('users') || [];
+}
+
+// Posts (feed de publicações)
+function savePosts(posts) {
+  saveData('posts', posts);
+}
+function loadPosts() {
+  return loadData('posts') || [];
+}
+
+// Comentários
+function saveComments(comments) {
+  saveData('comments', comments);
+}
+function loadComments() {
+  return loadData('comments') || [];
+}
+
+// Outras coleções podem ser criadas da mesma forma
+
+/* ===== Inicialização dos Dados ===== */
+// Se não houver dados salvos ainda, inicializa com arrays vazios
+if (!localStorage.getItem('users')) {
+  saveUsers([]);
+}
+if (!localStorage.getItem('posts')) {
+  savePosts([]);
+}
+if (!localStorage.getItem('comments')) {
+  saveComments([]);
+}
+
+/* ===== Exemplos de Uso ===== */
+
+// Adiciona um novo usuário
+function registerUser(newUser) {
+  const users = loadUsers();
+  // Verifica se o usuário já existe
+  if (users.find(u => u.username === newUser.username)) {
+    console.error('Usuário já existe!');
+    return false;
+  }
+  users.push(newUser);
+  saveUsers(users);
+  return true;
+}
+
+// Publica um novo post
+function publishPost(postContent, username) {
+  const posts = loadPosts();
+  const newPost = {
+    id: Date.now(),
+    username: username,
+    content: postContent,
+    time: new Date().toLocaleString(),
+    reactions: { '❤️': 0 } // Exemplo: apenas corações inicialmente
+  };
+  // Adiciona o post no início do array (feed reverso)
+  posts.unshift(newPost);
+  savePosts(posts);
+}
+
+// Publica um novo comentário
+function publishComment(username, commentText) {
+  const comments = loadComments();
+  const newComment = {
+    id: Date.now(),
+    username: username,
+    text: commentText,
+    time: new Date().toLocaleString(),
+    reactions: { '😂': 0, '❤️': 0, '👍🏾': 0, '👎🏾': 0, '🤬': 0, '🥰': 0 }
+  };
+  comments.push(newComment);
+  saveComments(comments);
+}
+
+// Exemplo para reagir a um comentário (cada usuário pode reagir uma única vez por emoji)
+function reactToComment(commentId, emoji, currentUsername) {
+  const comments = loadComments();
+  const comment = comments.find(c => c.id === commentId);
+  if (comment) {
+    // Aqui você pode implementar a lógica para impedir múltiplas reações do mesmo usuário
+    comment.reactions[emoji] = (comment.reactions[emoji] || 0) + 1;
+    saveComments(comments);
+  }
+}
+
+/* ===== Carregar Dados ao Iniciar ===== */
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Usuários:', loadUsers());
+  console.log('Posts:', loadPosts());
+  console.log('Comentários:', loadComments());
+  // Aqui você pode chamar funções para renderizar o feed, comentários e perfis na interface
+});
+  </script>
+ 
+  <style>
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+  /* Estilização geral */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* Cabeçalho estiloso */
+.header {
+    background: linear-gradient(90deg, #000, #222);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.header .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff9900;
+}
+
+.header .menu {
+    display: flex;
+    gap: 15px;
+}
+
+.header .menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.header .menu a:hover {
+    color: #ff9900;
+}
+
+/* Estilo do botão ao vivo */
+.live-button {
+    background-color: #ff0000;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+body {
+    background-color: #cc0000;
+}
+
+/* Banner principal */
+.banner {
+    text-align: center;
+    background: #fff;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.banner img {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 10px;
+}
+
+.banner h2 {
+    font-size: 24px;
+    margin-top: 10px;
+    color: #333;
+}
+
+/* Estilo do rodapé */
+.footer {
+    background-color: #222;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 30px;
+}
+    /* Reset e configurações globais */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #fff; color: #333; }
+    .container { width: 90%; max-width: 1200px; margin: auto; }
+    a { text-decoration: none; color: inherit; }
+
+    /* Cabeçalho e Menu */
+    header { background: #008000; padding: 20px 0; position: relative; }
+    .header-top {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .logo { font-size: 1.8em; font-weight: 600; color: #fff; }
+    .menu-button {
+      width: 45px; height: 45px; background: #fff; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center; cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .menu-button i { color: #008000; font-size: 1.5em; }
+    /* Painel lateral do menu */
+    .menu-panel {
+      display: none;
+      position: absolute; top: 70px; right: 20px;
+      background: #fff; border: 1px solid #ccc; border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+    .menu-panel ul { list-style: none; }
+    .menu-panel li { border-bottom: 1px solid #eee; }
+    .menu-panel li:last-child { border-bottom: none; }
+    .menu-panel a {
+      display: block; padding: 12px 20px; color: #008000; font-weight: 600;
+      transition: background 0.3s;
+    }
+    .menu-panel a:hover { background: #f4f4f4; }
+
+    /* Seção Hero */
+    .hero {
+      background: url('https://via.placeholder.com/1200x600/008000/ffffff?text=Lil+Gon%C3%A7alves') no-repeat center center/cover;
+      height: 600px; position: relative;
+    }
+    .hero::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+    }
+    .hero-content {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: #fff; text-align: center;
+    }
+    .hero-content h1 { font-size: 3.5em; margin-bottom: 10px; }
+    .hero-content p { font-size: 1.2em; }
+
+    /* Seções Gerais */
+    section { padding: 60px 0; }
+    section h2 { text-align: center; margin-bottom: 40px; color: #008000; }
+
+    /* Seção de Músicas */
+    .songs-section { background: #f4f4f4; }
+    .songs-list { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .song-item {
+      background: #fff; padding: 20px; border-radius: 8px; width: 280px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .song-item:hover { transform: scale(1.05); }
+    .song-item img { width: 100%; border-radius: 8px; }
+    .song-item h3 { margin: 15px 0 10px; color: #008000; }
+    .player { margin-top: 40px; text-align: center; }
+    .player audio { width: 100%; max-width: 600px; outline: none; }
+
+    /* Seção Sobre */
+    .about { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 60px; }
+
+    /* Seção de Comentários */
+    .comments-section { background: #f4f4f4; }
+    .comments-container { max-width: 800px; margin: auto; }
+    .comment-form { display: flex; flex-direction: column; margin-bottom: 40px; }
+    .comment-form input, .comment-form textarea {
+      padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1em;
+    }
+    .comment-form button {
+      padding: 10px; border: none; background: #008000; color: #fff; font-size: 1em;
+      border-radius: 5px; cursor: pointer; transition: background 0.3s;
+    }
+    .comment-form button:hover { background: #006400; }
+    .comment { border-bottom: 1px solid #ccc; padding: 15px 0; }
+    .comment:last-child { border-bottom: none; }
+    .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .comment-user { font-weight: bold; }
+    .verified-badge { color: #007bff; margin-left: 5px; } /* Selo azul de verificação */
+    .comment-time { font-size: 0.9em; color: #777; }
+    .comment-body { margin-bottom: 10px; }
+    .comment-reactions { display: flex; gap: 10px; align-items: center; }
+    .comment-reactions button { background: none; border: none; cursor: pointer; font-size: 1.2em; }
+    .reaction-count { margin-left: 5px; font-size: 0.9em; }
+
+    /* Seção de Registro/Verificação */
+    .registration-section {
+      background: #fff; padding: 40px; border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 500px; margin: auto;
+    }
+    .registration-section h2 { color: #008000; margin-bottom: 20px; }
+    .registration-section input {
+      width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;
+    }
+    .registration-section button {
+      width: 100%; padding: 10px; border: none; background: #008000; color: #fff;
+      font-size: 1em; border-radius: 5px; cursor: pointer; transition: background 0.3s;
+    }
+    .registration-section button:hover { background: #006400; }
+    .registration-section p { margin-top: 10px; font-size: 0.9em; }
+    
+    /* Seção de Usuários */
+    .users-section { background: #f4f4f4; }
+    .users-list { max-width: 800px; margin: auto; }
+    .user-item {
+      padding: 15px; border-bottom: 1px solid #ccc; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .user-item:last-child { border-bottom: none; }
+    .follow-btn {
+      background: #008000; color: #fff; border: none; padding: 6px 12px;
+      border-radius: 4px; cursor: pointer; font-size: 0.9em;
+      transition: background 0.3s;
+    }
+    .follow-btn:hover { background: #006400; }
+    
+    /* Seção Contato */
+    .contact .about { text-align: center; }
+    
+    /* Rodapé */
+    footer { background: #008000; color: #fff; text-align: center; padding: 20px 0; }
+    
+    /* Modal de Login */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+      z-index: 200;
+    }
+    .modal-content {
+      background: #fff; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px;
+    }
+    .modal-content h2 { margin-bottom: 20px; color: #008000; }
+    .modal-content input {
+      width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;
+    }
+    .modal-content button {
+      width: 100%; padding: 10px; border: none; background: #008000; color: #fff;
+      border-radius: 5px; cursor: pointer; transition: background 0.3s;
+    }
+    .modal-content button:hover { background: #006400; }
+  </style>
+</head>
+<body>
+  <!-- Cabeçalho com menu redondo -->
+  <header>
+    <div class="container">
+      <div class="header-top">
+        <div class="logo">Lil Gonçalves File</div>
+        <div class="menu-button" onclick="toggleMenu()">
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+      <!-- Painel lateral do menu -->
+      <div id="menuPanel" class="menu-panel">
+        <ul>
+          <li><a href="#home" onclick="toggleMenu()">Home</a></li>
+          <li><a href="#songs" onclick="toggleMenu()">Músicas</a></li>
+          <li><a href="#about" onclick="toggleMenu()">Sobre</a></li>
+          <li><a href="#comments" onclick="toggleMenu()">Comentários</a></li>
+          <li><a href="#users" onclick="toggleMenu()">Usuários</a></li>
+          <li><a href="#registration" onclick="toggleMenu()">Registro/Verificação</a></li>
+          <li><a href="#" onclick="showLogin()">Login</a></li>
+          <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Seção Hero -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <h1>Lil Gonçalves</h1>
+      <p>O som que define uma geração</p>
+    </div>
+  </section>
+  
+  <!-- Seção de Músicas -->
+  <section class="songs-section" id="songs">
+    <div class="container">
+      <h2>Músicas</h2>
+      <div class="songs-list" id="songsList">
+        <!-- As músicas serão renderizadas aqui -->
+      </div>
+      <div class="player" id="playerSection" style="display:none;">
+        <h3 id="currentSongTitle"></h3>
+        <audio id="audioPlayer" controls>
+          <source id="audioSource" src="" type="audio/mpeg">
+          Seu navegador não suporta o elemento de áudio.
+        </audio>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Seção Sobre -->
+  <section id="about">
+    <div class="container">
+      <h2>Sobre Lil Gonçalves</h2>
+      <div class="about">
+        <p>Lil Gonçalves é um cantor inovador que conquistou o coração de milhares de fãs com sua música única e estilo inconfundível. Aqui você encontra tudo sobre sua trajetória, sucessos e novidades do artista.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Seção de Comentários -->
+  <section class="comments-section" id="comments">
+    <div class="container comments-container">
+      <h2>Comentários</h2>
+      <!-- Formulário para publicar comentário -->
+      <form class="comment-form" id="commentForm">
+        <input type="text" id="username" placeholder="Seu nome (use sua conta registrada)" required>
+        <textarea id="commentText" placeholder="Escreva seu comentário..." rows="4" required></textarea>
+        <button type="submit">Publicar Comentário</button>
+      </form>
+      <!-- Lista de comentários -->
+      <div id="commentsList"></div>
+    </div>
+  </section>
+  
+  <!-- Seção de Usuários (para seguir) -->
+  <section class="users-section" id="users">
+    <div class="container">
+      <h2>Usuários</h2>
+      <div class="users-list" id="usersList">
+        <!-- Lista de usuários renderizada -->
+      </div>
+    </div>
+  </section>
+  
+  <!-- Seção de Registro/Verificação -->
+  <section id="registration">
+    <div class="container">
+      <div class="registration-section">
+        <h2>Registro e Verificação</h2>
+        <form id="registrationForm">
+          <input type="text" id="regUsername" placeholder="Nome de usuário" required>
+          <input type="email" id="regEmail" placeholder="Email" required>
+          <input type="password" id="regPassword" placeholder="Senha" required>
+          <button type="submit">Registrar</button>
+        </form>
+        <p><span style="color:#e74c3c;"></span> </p>
+        <button id="verifyBtn" onclick="requestVerification()">Pedir Verificação</button>
+        <div id="registrationMessage"></div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Seção Contato -->
+  <section id="contact">
+    <div class="container">
+      <h2>Contato</h2>
+      <div class="about">
+        <p>Entre em contato pelo email: <strong>contato@lilgonalves.com</strong> ou siga nossas redes sociais.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Rodapé -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Lil Gonçalves File. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  
+  <!-- Modal de Login -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h2>Login</h2>
+      <input type="text" id="loginUsername" placeholder="Nome de usuário">
+      <input type="password" id="loginPassword" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <button onclick="closeLogin()" style="margin-top:10px;">Cancelar</button>
+    </div>
+  </div>
+  
+  <!-- JavaScript: Funcionalidades de Música, Comentários, Reações, Registro, Login e Seguidores -->
+  <script>
+    /* ======== Simulação de dados com localStorage ======== */
+    // Sample songs (pode ser substituído por uma API real)
+    const sampleSongs = [
+      { id: 1, title: "Música 1", cover: "https://via.placeholder.com/280x280", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+      { id: 2, title: "Música 2", cover: "https://via.placeholder.com/280x280", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+      { id: 3, title: "Música 3", cover: "https://via.placeholder.com/280x280", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+    ];
+    
+    /* ======== Menu Toggle ======== */
+    function toggleMenu() {
+      const panel = document.getElementById("menuPanel");
+      panel.style.display = panel.style.display === "block" ? "none" : "block";
+    }
+    
+    /* ======== Músicas ======== */
+    function renderSongs(songs) {
+      const songsList = document.getElementById("songsList");
+      songsList.innerHTML = "";
+      songs.forEach(song => {
+        const songItem = document.createElement("div");
+        songItem.className = "song-item";
+        songItem.innerHTML = `
+          <img src="${song.cover}" alt="${song.title}">
+          <h3>${song.title}</h3>
+        `;
+        songItem.addEventListener("click", () => playSong(song));
+        songsList.appendChild(songItem);
+      });
+    }
+    
+    function playSong(song) {
+      const playerSection = document.getElementById("playerSection");
+      const audioPlayer = document.getElementById("audioPlayer");
+      const audioSource = document.getElementById("audioSource");
+      const currentSongTitle = document.getElementById("currentSongTitle");
+      audioSource.src = song.audio;
+      audioPlayer.load();
+      audioPlayer.play();
+      currentSongTitle.textContent = song.title;
+      playerSection.style.display = "block";
+      window.scrollTo({ top: document.getElementById("playerSection").offsetTop - 80, behavior: "smooth" });
+    }
+    
+    /* ======== Comentários e Reações ======== */
+    function fetchComments() {
+      const comments = JSON.parse(localStorage.getItem("comments")) || [];
+      renderComments(comments);
+    }
+    
+    function renderComments(comments) {
+      const commentsList = document.getElementById("commentsList");
+      commentsList.innerHTML = "";
+      comments.forEach(comment => {
+        const isVerified = comment.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : '';
+        const commentDiv = document.createElement("div");
+        commentDiv.className = "comment";
+        commentDiv.innerHTML = `
+          <div class="comment-header">
+            <span class="comment-user">${comment.username} ${isVerified}</span>
+            <span class="comment-time">${comment.time}</span>
+          </div>
+          <div class="comment-body">${comment.text}</div>
+          <div class="comment-reactions">
+            <button onclick="reactComment(${comment.id}, '😂')">😂 <span class="reaction-count">${(comment.reactions['😂'] && comment.reactions['😂'].count) || 0}</span></button>
+            <button onclick="reactComment(${comment.id}, '❤️')">❤️ <span class="reaction-count">${(comment.reactions['❤️'] && comment.reactions['❤️'].count) || 0}</span></button>
+            <button onclick="reactComment(${comment.id}, '👍🏾')">👍🏾 <span class="reaction-count">${(comment.reactions['👍🏾'] && comment.reactions['👍🏾'].count) || 0}</span></button>
+            <button onclick="reactComment(${comment.id}, '👎🏾')">👎🏾 <span class="reaction-count">${(comment.reactions['👎🏾'] && comment.reactions['👎🏾'].count) || 0}</span></button>
+            <button onclick="reactComment(${comment.id}, '🤬')">🤬 <span class="reaction-count">${(comment.reactions['🤬'] && comment.reactions['🤬'].count) || 0}</span></button>
+            <button onclick="reactComment(${comment.id}, '🥰')">🥰 <span class="reaction-count">${(comment.reactions['🥰'] && comment.reactions['🥰'].count) || 0}</span></button>
+          </div>
+        `;
+        commentsList.appendChild(commentDiv);
+      });
+    }
+    
+    function postComment(comment) {
+      const comments = JSON.parse(localStorage.getItem("comments")) || [];
+      comment.id = new Date().getTime(); // ID simples
+      // Inicializa o objeto de reações com arrays para controlar se o usuário já reagiu
+      comment.reactions = { '😂': { count: 0, users: [] },
+                            '❤️': { count: 200, users: [] },
+                            '👍🏾': { count: 0, users: [] },
+                            '👎🏾': { count: 0, users: [] },
+                            '🤬': { count: 0, users: [] },
+                            '🥰': { count: 0, users: [] } };
+      comments.push(comment);
+      localStorage.setItem("comments", JSON.stringify(comments));
+      fetchComments();
+    }
+    
+    function reactComment(commentId, emoji) {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert("Faça login para reagir!");
+        return;
+      }
+      const comments = JSON.parse(localStorage.getItem("comments")) || [];
+      const comment = comments.find(c => c.id === commentId);
+      if (comment) {
+        // Verifica se o usuário já reagiu com este emoji neste comentário
+        if (!comment.reactions[emoji].users.includes(currentUser.username)) {
+          comment.reactions[emoji].count++;
+          comment.reactions[emoji].users.push(currentUser.username);
+          // Se o emoji for ❤️ e o comentário pertence ao próprio usuário, atualiza o heartCount
+          if (emoji === '❤️' && comment.username === currentUser.username) {
+            updateUserHeartCount(currentUser.username,761);
+          }
+          localStorage.setItem("comments", JSON.stringify(comments));
+          fetchComments();
+        } else {
+          alert("Você já reagiu com esse emoji neste comentário.");
+        }
+      }
+    }
+    
+    /* ======== Registro e Login ======== */
+    function registerUser(user) {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      // Se o usuário já existir, não permite registrar novamente
+      if (users.find(u => u.username === user.username)) {
+        alert("Nome de usuário já existe!");
+        return false;
+      }
+      // Inicializa seguidores, heartCount, verificação e lista de quem segue
+      user.followers = 200;
+      user.following = 200;
+      user.heartCount = 200;
+      user.verified = false;
+      users.push(user);
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Registro realizado com sucesso!");
+      renderUsers();
+      return true;
+    }
+    
+    function login() {
+      const username = document.getElementById("loginUsername").value;
+      const password = document.getElementById("loginPassword").value;
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find(u => u.username === username && u.password === password);
+      if (user) {
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        alert("Login efetuado com sucesso!");
+        closeLogin();
+        renderUsers();
+      } else {
+        alert("Usuário ou senha incorretos!");
+      }
+    }
+    
+    function logout() {
+      localStorage.removeItem("currentUser");
+      alert("Logout realizado!");
+      renderUsers();
+    }
+    
+    function getCurrentUser() {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    }
+    
+    // Atualiza o heartCount do usuário e, se ultrapassar 200, permite verificação
+    function updateUserHeartCount(username, value) {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const user = users.find(u => u.username === username);
+      if (user) {
+        user.heartCount = (user.heartCount || 0) + value;
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+    }
+    
+    function requestVerification() {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert("Faça login para solicitar verificação.");
+        return;
+      }
+      if (currentUser.heartCount >= 200) {
+        currentUser.verified = true;
+        updateCurrentUser(currentUser);
+        alert("Você foi verificado com sucesso!");
+      } else {
+        alert("Você precisa de pelo menos 200 ❤️ para ser verificado. Atualmente: " + currentUser.heartCount);
+      }
+      fetchComments();
+    }
+    
+    function updateCurrentUser(updatedUser) {
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users = users.map(u => u.username === updatedUser.username ? updatedUser : u);
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+      renderUsers();
+    }
+    
+    /* ======== Renderização de Usuários (para seguir) ======== */
+    function renderUsers() {
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const usersList = document.getElementById("usersList");
+      usersList.innerHTML = "";
+      users.forEach(user => {
+        const userDiv = document.createElement("div");
+        userDiv.className = "user-item";
+        userDiv.innerHTML = `
+          <span>${user.username} ${user.verified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}</span>
+          <span><button class="follow-btn" onclick="followUser('${user.username}')">Seguir</button> - ${user.followers} seguidores</span>
+        `;
+        usersList.appendChild(userDiv);
+      });
+    }
+    
+    function followUser(targetUsername) {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert("Faça login para seguir usuários!");
+        return;
+      }
+      if (currentUser.username === targetUsername) {
+        alert("Você não pode seguir a si mesmo.");
+        return;
+      }
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const targetUser = users.find(u => u.username === targetUsername);
+      if (!targetUser) return;
+      // Verifica se já está seguindo
+      if (!currentUser.following.includes(targetUsername)) {
+        currentUser.following.push(targetUsername);
+        targetUser.followers++;
+        updateCurrentUser(currentUser);
+        // Atualiza o targetUser na lista
+        localStorage.setItem("users", JSON.stringify(users));
+        renderUsers();
+      } else {
+        alert("Você já está seguindo este usuário.");
+      }
+    }
+    
+    /* ======== Modal de Login ======== */
+    function showLogin() {
+      document.getElementById("loginModal").style.display = "flex";
+    }
+    function closeLogin() {
+      document.getElementById("loginModal").style.display = "none";
+    }
+    
+    /* ======== Eventos de Formulário ======== */
+    document.getElementById("registrationForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("regUsername").value;
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+      const user = { username, email, password };
+      if (registerUser(user)) {
+        this.reset();
+      }
+    });
+    
+    document.getElementById("commentForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert("Você precisa estar logado para comentar.");
+        return;
+      }
+      const username = currentUser.username;
+      const commentText = document.getElementById("commentText").value;
+      const comment = {
+        username,
+        text: commentText,
+        time: new Date().toLocaleString(),
+        // Se o usuário estiver verificado, o selo já aparecerá nos comentários
+        verified: currentUser.verified
+      };
+      postComment(comment);
+      this.reset();
+    });
+    
+    /* ======== Inicialização ======== */
+    renderSongs(sampleSongs);
+    fetchComments();
+    renderUsers();
+  </script>
+</body>
+</html>
+

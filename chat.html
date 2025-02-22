@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title>Hello, World!</title>
+</head>
+<body>
+  <h1>
+    
+  </h1>
+</body>
+</html>
+<!-- Seção Chat -->
+<section id="chat">
+  <div class="container">
+    <h2>Chat Online</h2>
+    <style>
+    /* Estilos gerais */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Status do usuário */
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.status.online::before {
+  content: '●';
+  color: #00ff00;
+  font-size: 20px;
+}
+
+.status.offline::before {
+  content: '●';
+  color: #ff0000;
+  font-size: 20px;
+}
+    /* Global */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #1a1a2e;  /* Fundo escuro */
+  color: #e0e0e0;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Cabeçalho */
+.header {
+  background: linear-gradient(90deg, #0f2027, #203a43, #2c5364);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header .logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00aaff;
+}
+.header .menu {
+  display: flex;
+  gap: 20px;
+}
+.header .menu a {
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+.header .menu a:hover {
+  color: #00aaff;
+}
+
+/* Botões vibrantes com efeito dinâmico */
+.btn {
+  background: linear-gradient(45deg, #005f99, #00aaff);
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 175, 255, 0.5);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Cartões e caixas */
+.card, .box {
+  background-color: #16222a;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s;
+}
+.card:hover, .box:hover {
+  transform: scale(1.02);
+}
+
+/* Formulários */
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #2e2e2e;
+  color: #e0e0e0;
+  transition: border-color 0.3s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #00aaff;
+  outline: none;
+}
+
+/* Links */
+a {
+  color: #00aaff;
+  transition: color 0.3s;
+}
+a:hover {
+  color: #00ccff;
+}
+
+/* Navegação adicional */
+.navbar {
+  background-color: #16222a;
+  padding: 10px 20px;
+}
+.navbar a {
+  color: #e0e0e0;
+  padding: 10px;
+  text-decoration: none;
+}
+.navbar a:hover {
+  color: #00aaff;
+}
+
+/* Rodapé */
+.footer {
+  background-color: #0f2027;
+  color: #e0e0e0;
+  text-align: center;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+/* Utilitários */
+.text-center { text-align: center; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+    </style>
+    <span id="user-status" class="status"></span>
+    <!-- Área de exibição das mensagens -->
+    <div id="chatMessages" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #fff; border-radius: 8px;"></div>
+    <!-- Formulário para enviar mensagem -->
+    <form id="chatForm" style="margin-top: 15px;">
+      <input type="text" id="chatInput" placeholder="Digite sua mensagem..." required style="width: 80%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+      <button type="submit" class="btn">Enviar</button>
+    </form>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function atualizarStatus() {
+        const statusElement = document.getElementById("user-status");
+
+        if (navigator.onLine) {
+            statusElement.textContent = "Online";
+            statusElement.classList.remove("offline");
+            statusElement.classList.add("online");
+        } else {
+            statusElement.textContent = "Offline";
+            statusElement.classList.remove("online");
+            statusElement.classList.add("offline");
+        }
+    }
+
+    // Atualiza o status quando a página carrega
+    atualizarStatus();
+
+    // Atualiza quando muda a conexão
+    window.addEventListener("online", atualizarStatus);
+    window.addEventListener("offline", atualizarStatus);
+});
+  // Funções para gerenciar o chat usando localStorage (simulando uma API sem key)
+  
+  // Retorna as mensagens do chat
+  function getChatMessages() {
+    return JSON.parse(localStorage.getItem("chatMessages")) || [];
+  }
+  
+  // Salva as mensagens do chat
+  function saveChatMessages(messages) {
+    localStorage.setItem("chatMessages", JSON.stringify(messages));
+  }
+  
+  // Atualiza o status (última atividade) do usuário
+  function updateUserStatus(username) {
+    let status = JSON.parse(localStorage.getItem("userStatus")) || {};
+    status[username] = Date.now();
+    localStorage.setItem("userStatus", JSON.stringify(status));
+  }
+  
+  // Obtém o timestamp da última atividade do usuário
+  function getUserStatus(username) {
+    let status = JSON.parse(localStorage.getItem("userStatus")) || {};
+    return status[username] || 0;
+  }
+  
+  // Verifica se o usuário está online (ativo nos últimos 60 segundos)
+  function isUserOnline(username) {
+    let lastActive = getUserStatus(username);
+    return (Date.now() - lastActive) < 60000; // 60 segundos
+  }
+  
+  // Renderiza as mensagens do chat na interface
+  function renderChat() {
+    const chatMessagesDiv = document.getElementById("chatMessages");
+    const messages = getChatMessages();
+    chatMessagesDiv.innerHTML = "";
+    messages.forEach(msg => {
+      // Define ícone de status: online (verde) ou offline (cinza)
+      const online = isUserOnline(msg.username);
+      const statusIcon = online 
+        ? '<i class="fas fa-circle" style="color: green;"></i>' 
+        : '<i class="fas fa-circle" style="color: gray;"></i>';
+      // Se o usuário estiver verificado, exibe o selo (ícone do Font Awesome)
+      const verifiedBadge = msg.verified ? '<i class="fas fa-check-circle" style="color: #007bff; margin-left: 5px;"></i>' : '';
+      const msgDiv = document.createElement("div");
+      msgDiv.style.borderBottom = "1px solid #ccc";
+      msgDiv.style.padding = "5px 0";
+      msgDiv.innerHTML = `<strong>${msg.username}${verifiedBadge}</strong> ${statusIcon} <em>${msg.time}</em><br>${msg.content}`;
+      chatMessagesDiv.appendChild(msgDiv);
+    });
+    // Mantém a rolagem no final para ver as mensagens recentes
+    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+  }
+  
+  // Envio do formulário do chat
+  document.getElementById("chatForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (!currentUser) {
+      alert("Faça login para usar o chat.");
+      return;
+    }
+    const input = document.getElementById("chatInput");
+    const content = input.value;
+    if (!content.trim()) return;
+    const messages = getChatMessages();
+    const newMsg = {
+      id: Date.now(),
+      username: currentUser.username,
+      content: content,
+      time: new Date().toLocaleTimeString(),
+      verified: currentUser.verified || false
+    };
+    messages.push(newMsg);
+    saveChatMessages(messages);
+    updateUserStatus(currentUser.username);
+    input.value = "";
+    renderChat();
+  });
+  
+  // Atualiza o status do usuário periodicamente (a cada 15 segundos)
+  setInterval(() => {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (currentUser) {
+      updateUserStatus(currentUser.username);
+      renderChat();
+    }
+  }, 15000);
+  
+  // Atualiza a exibição do chat periodicamente (a cada 10 segundos)
+  setInterval(() => {
+    renderChat();
+  }, 10000);
+  
+  // Inicializa o chat quando o DOM é carregado
+  document.addEventListener("DOMContentLoaded", () => {
+    renderChat();
+  });
+</script>
