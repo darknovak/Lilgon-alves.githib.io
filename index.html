@@ -26,6 +26,93 @@
   <!-- Font Awesome para ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <script>
+    const API_URL = "https://67ba64aafbe0387ca1374144.mockapi.io/Isaac/API/ke/user"; 
+
+// 📌 Salvar Usuário ao Criar Conta
+async function criarConta(nome, email) {
+    let response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, email, seguidores: 0, status: "offline" })
+    });
+
+    let data = await response.json();
+    console.log("Conta criada!", data);
+    atualizarListaUsuarios();
+}
+
+// 📌 Atualizar Status Online
+async function atualizarStatus(id, status) {
+    await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+    });
+}
+
+// 📌 Buscar Todos Usuários Online
+async function atualizarListaUsuarios() {
+    let response = await fetch(API_URL);
+    let usuarios = await response.json();
+
+    let lista = document.getElementById("lista-usuarios");
+    lista.innerHTML = "";
+    usuarios.forEach(user => {
+        let li = document.createElement("li");
+        li.textContent = `${user.nome} - ${user.status.toUpperCase()}`;
+        lista.appendChild(li);
+    });
+}
+
+// 📌 Armazenar Mensagens no Banco Online
+async function enviarMensagem(idUser, mensagem) {
+    await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idUser, mensagem, data: new Date().toISOString() })
+    });
+
+    console.log("Mensagem enviada!");
+}
+
+// 📌 Detectar se Usuário Saiu do Site
+window.addEventListener("beforeunload", async function () {
+    let response = await fetch(API_URL);
+    let usuarios = await response.json();
+    
+    usuarios.forEach(async user => {
+        await atualizarStatus(user.id, "offline");
+    });
+});
+
+// 📌 Login do Usuário e Atualizar Status
+async function login(email) {
+    let response = await fetch(API_URL);
+    let usuarios = await response.json();
+    
+    let user = usuarios.find(u => u.email === email);
+    if (user) {
+        await atualizarStatus(user.id, "online");
+        console.log("Login feito!", user);
+    } else {
+        console.log("Usuário não encontrado!");
+    }
+}
+
+// 📌 Criar Conta ao Clicar no Botão
+document.getElementById("criar-conta").addEventListener("click", async function () {
+    let nome = document.getElementById("nome").value;
+    let email = document.getElementById("email").value;
+    if (nome && email) {
+        await criarConta(nome, email);
+    }
+});
+
+// 📌 Atualizar Lista ao Iniciar
+atualizarListaUsuarios();
+    
+  </script>
+  <script>
     document.addEventListener("DOMContentLoaded", function () {
     // Abrir ou criar um banco de dados chamado "MeuSiteDB"
     let db;
